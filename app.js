@@ -15,11 +15,31 @@ const firebaseConfig = {
     measurementId: "G-VGS57JCJRT"
 };
 
+// Previous import statements...
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const auth = getAuth(app); // Initialize Firebase Authentication
-const storage = getStorage(app); // Initialize Firebase Storage
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// Handle Authentication State Changes
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // User is signed in, hide login button and show upload section
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('upload-container').style.display = 'block';
+    } else {
+        // No user is signed in, show login button
+        document.getElementById('login-container').style.display = 'block';
+        document.getElementById('upload-container').style.display = 'none';
+    }
+});
+
+// Existing Google Sign-In Logic...
+// Existing Image Upload Logic...
+// Existing Function to Display Photos...
+
 
 // Google Sign-In Logic
 document.getElementById('login').addEventListener('click', () => {
