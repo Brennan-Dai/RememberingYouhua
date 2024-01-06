@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+#upload-container, #login-container {
+    margin: 20px;
+}
+
+#photos-container img {
+    width: 200px;
+    margin: 10px;
+}
