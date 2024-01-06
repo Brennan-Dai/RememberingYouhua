@@ -6,15 +6,15 @@ import { getStorage, ref as sRef, uploadBytes, listAll, getDownloadURL } from "h
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Your web app's Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    measurementId: "YOUR_MEASUREMENT_ID"
+    apiKey: "AIzaSyCOuJVmdm8_c-tsCOM_wj2qesevVmESmWo",
+    authDomain: "rememberingyouhua.firebaseapp.com",
+    projectId: "rememberingyouhua",
+    storageBucket: "rememberingyouhua.appspot.com",
+    messagingSenderId: "716740076335",
+    appId: "1:716740076335:web:bdf9edcb15068f04ff37da",
+    measurementId: "G-VGS57JCJRT"
 };
 
 // Initialize Firebase
@@ -86,6 +86,9 @@ function displayPhotos() {
                         document.getElementById('photo-modal').style.display = 'block';
                         currentPhotoId = itemRef.name; // Set the current photo ID
                         loadComments(itemRef.name); // Load comments for the photo
+                        document.getElementById('photo-comments').style.display = 'block';
+                        document.getElementById('comment-input').style.display = 'block';
+                        document.getElementById('post-comment').style.display = 'block';
                     };
                     photosContainer.appendChild(img);
                 });
@@ -99,11 +102,17 @@ var span = document.getElementsByClassName('close')[0];
 
 span.onclick = function() {
     modal.style.display = 'none';
+    document.getElementById('photo-comments').style.display = 'none';
+    document.getElementById('comment-input').style.display = 'none';
+    document.getElementById('post-comment').style.display = 'none';
 };
 
 window.onclick = function(event) {
     if (event.target === modal) {
         modal.style.display = 'none';
+        document.getElementById('photo-comments').style.display = 'none';
+        document.getElementById('comment-input').style.display = 'none';
+        document.getElementById('post-comment').style.display = 'none';
     }
 };
 
