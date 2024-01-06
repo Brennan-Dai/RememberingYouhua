@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getStorage, ref as sRef, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } 
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, doc } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase configuration
@@ -30,11 +30,9 @@ let currentPhotoId = null;
 // Handle Authentication State Changes
 auth.onAuthStateChanged(user => {
     if (user) {
-        // User is signed in
         document.getElementById('login-container').style.display = 'none';
         document.getElementById('upload-container').style.display = 'block';
     } else {
-        // No user is signed in
         document.getElementById('login-container').style.display = 'block';
         document.getElementById('upload-container').style.display = 'none';
     }
@@ -86,9 +84,6 @@ function displayPhotos() {
                         document.getElementById('photo-modal').style.display = 'block';
                         currentPhotoId = itemRef.name; // Set the current photo ID
                         loadComments(itemRef.name); // Load comments for the photo
-                        document.getElementById('photo-comments').style.display = 'block';
-                        document.getElementById('comment-input').style.display = 'block';
-                        document.getElementById('post-comment').style.display = 'block';
                     };
                     photosContainer.appendChild(img);
                 });
@@ -102,17 +97,11 @@ var span = document.getElementsByClassName('close')[0];
 
 span.onclick = function() {
     modal.style.display = 'none';
-    document.getElementById('photo-comments').style.display = 'none';
-    document.getElementById('comment-input').style.display = 'none';
-    document.getElementById('post-comment').style.display = 'none';
 };
 
 window.onclick = function(event) {
     if (event.target === modal) {
         modal.style.display = 'none';
-        document.getElementById('photo-comments').style.display = 'none';
-        document.getElementById('comment-input').style.display = 'none';
-        document.getElementById('post-comment').style.display = 'none';
     }
 };
 
@@ -121,6 +110,7 @@ async function postComment(photoId, commentText) {
     const commentData = {
         text: commentText,
         timestamp: serverTimestamp(),
+        userName: auth.currentUser.displayName, // Get the user's display name
         userId: auth.currentUser.uid
     };
     await addDoc(collection(db, "photos", photoId, "comments"), commentData);
@@ -136,7 +126,8 @@ async function loadComments(photoId) {
     querySnapshot.forEach((doc) => {
         const commentData = doc.data();
         const commentElement = document.createElement("div");
-        commentElement.textContent = commentData.text; // Format as needed
+        commentElement.className = 'comment-box';
+        commentElement.textContent = `${commentData.userName}: ${commentData.text}`; // Display the commenter's name and text
         commentsContainer.appendChild(commentElement);
     });
 }

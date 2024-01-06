@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Photo Sharing App</title>
+    <title>Photo Sharing App for Grandma's Funeral</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Photo Sharing App</h1>
+        <h1>Memories of Grandma</h1>
     </header>
 
     <div id="photos-container"></div>
@@ -24,6 +24,8 @@
     <!-- Modal for Enlarged Photo View -->
     <div id="photo-modal" class="modal">
         <span class="close">&times;</span>
+        <button id="prev-photo" class="modal-nav">‹ Prev</button>
+        <button id="next-photo" class="modal-nav">Next ›</button>
         <img class="modal-content" id="enlarged-photo">
         <div id="photo-comments" class="photo-comments"></div>
         <input type="text" id="comment-input" placeholder="Write a comment...">
