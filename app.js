@@ -8,13 +8,13 @@ import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimest
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCOuJVmdm8_c-tsCOM_wj2qesevVmESmWo",
-    authDomain: "rememberingyouhua.firebaseapp.com",
-    projectId: "rememberingyouhua",
-    storageBucket: "rememberingyouhua.appspot.com",
-    messagingSenderId: "716740076335",
-    appId: "1:716740076335:web:bdf9edcb15068f04ff37da",
-    measurementId: "G-VGS57JCJRT"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
 };
 
 // Initialize Firebase
@@ -23,6 +23,9 @@ const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 const db = getFirestore(app);
+
+// Global variable to track the current photo ID
+let currentPhotoId = null;
 
 // Handle Authentication State Changes
 auth.onAuthStateChanged(user => {
@@ -81,6 +84,7 @@ function displayPhotos() {
                     img.onclick = function() {
                         document.getElementById('enlarged-photo').src = url;
                         document.getElementById('photo-modal').style.display = 'block';
+                        currentPhotoId = itemRef.name; // Set the current photo ID
                         loadComments(itemRef.name); // Load comments for the photo
                     };
                     photosContainer.appendChild(img);
@@ -132,10 +136,13 @@ async function loadComments(photoId) {
 document.getElementById('post-comment').addEventListener('click', async () => {
     const commentInput = document.getElementById('comment-input');
     const commentText = commentInput.value;
-    const currentPhotoId = ...; // The ID of the currently displayed photo
-    await postComment(currentPhotoId, commentText);
-    commentInput.value = ''; // Clear the input
-    await loadComments(currentPhotoId); // Reload comments
+    if (currentPhotoId && commentText) {
+        await postComment(currentPhotoId, commentText);
+        commentInput.value = ''; // Clear the input
+        await loadComments(currentPhotoId); // Reload comments
+    } else {
+        console.log('No photo selected or comment text is empty');
+    }
 });
 
 // Load initial photos
