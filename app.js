@@ -3,6 +3,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getStorage, ref as sRef, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } 
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,44 +17,34 @@ const firebaseConfig = {
     measurementId: "G-VGS57JCJRT"
 };
 
-// Previous import statements...
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+const db = getFirestore(app);
 
 // Handle Authentication State Changes
 auth.onAuthStateChanged(user => {
     if (user) {
-        // User is signed in, hide login button and show upload section
+        // User is signed in
         document.getElementById('login-container').style.display = 'none';
         document.getElementById('upload-container').style.display = 'block';
     } else {
-        // No user is signed in, show login button
+        // No user is signed in
         document.getElementById('login-container').style.display = 'block';
         document.getElementById('upload-container').style.display = 'none';
     }
 });
-
-// Existing Google Sign-In Logic...
-// Existing Image Upload Logic...
-// Existing Function to Display Photos...
-
 
 // Google Sign-In Logic
 document.getElementById('login').addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
         .then((result) => {
-            // Sign-in successful.
-            // You can also get the user info from result.user
             console.log('User signed in');
-            document.getElementById('upload-container').style.display = 'block'; // Show upload section
         })
         .catch((error) => {
-            // Handle errors here.
             console.error(error);
         });
 });
@@ -86,14 +78,65 @@ function displayPhotos() {
                 getDownloadURL(itemRef).then((url) => {
                     const img = document.createElement('img');
                     img.src = url;
+                    img.onclick = function() {
+                        document.getElementById('enlarged-photo').src = url;
+                        document.getElementById('photo-modal').style.display = 'block';
+                        loadComments(itemRef.name); // Load comments for the photo
+                    };
                     photosContainer.appendChild(img);
                 });
             });
-        })
-        .catch((error) => {
-            console.log("Error in fetching images:", error);
         });
 }
 
-// Initial call to display photos
+// Modal handling
+var modal = document.getElementById('photo-modal');
+var span = document.getElementsByClassName('close')[0];
+
+span.onclick = function() {
+    modal.style.display = 'none';
+};
+
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Function to post a comment
+async function postComment(photoId, commentText) {
+    const commentData = {
+        text: commentText,
+        timestamp: serverTimestamp(),
+        userId: auth.currentUser.uid
+    };
+    await addDoc(collection(db, "photos", photoId, "comments"), commentData);
+}
+
+// Function to load comments for a photo
+async function loadComments(photoId) {
+    const commentsContainer = document.getElementById('photo-comments');
+    commentsContainer.innerHTML = ''; // Clear existing comments
+
+    const q = query(collection(db, "photos", photoId, "comments"), orderBy("timestamp", "desc"));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        const commentData = doc.data();
+        const commentElement = document.createElement("div");
+        commentElement.textContent = commentData.text; // Format as needed
+        commentsContainer.appendChild(commentElement);
+    });
+}
+
+// Event listener for posting a comment
+document.getElementById('post-comment').addEventListener('click', async () => {
+    const commentInput = document.getElementById('comment-input');
+    const commentText = commentInput.value;
+    const currentPhotoId = ...; // The ID of the currently displayed photo
+    await postComment(currentPhotoId, commentText);
+    commentInput.value = ''; // Clear the input
+    await loadComments(currentPhotoId); // Reload comments
+});
+
+// Load initial photos
 displayPhotos();
