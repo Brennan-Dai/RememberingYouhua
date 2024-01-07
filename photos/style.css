@@ -16,6 +16,7 @@ nav {
     width: 100%;
     top: 0;
     z-index: 5; /* Lower z-index than the modal */
+    font-family: 'Times New Roman', sans-serif;
 }
 
 nav a {
