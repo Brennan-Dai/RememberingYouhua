@@ -24,17 +24,27 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 const db = getFirestore(app);
 
-// Global variable to track the current photo ID
+// Global variables
 let currentPhotoId = null;
+let photoUrls = [];
 
 // Handle Authentication State Changes
 auth.onAuthStateChanged(user => {
+    const loginContainer = document.getElementById('login-container');
+    const uploadContainer = document.getElementById('upload-container');
+    const commentInput = document.getElementById('comment-input');
+    const postCommentBtn = document.getElementById('post-comment');
+
     if (user) {
-        document.getElementById('login-container').style.display = 'none';
-        document.getElementById('upload-container').style.display = 'block';
+        loginContainer.style.display = 'none';
+        uploadContainer.style.display = 'block';
+        commentInput.style.display = 'block';
+        postCommentBtn.style.display = 'block';
     } else {
-        document.getElementById('login-container').style.display = 'block';
-        document.getElementById('upload-container').style.display = 'none';
+        loginContainer.style.display = 'block';
+        uploadContainer.style.display = 'none';
+        commentInput.style.display = 'none';
+        postCommentBtn.style.display = 'none';
     }
 });
 
@@ -42,9 +52,6 @@ auth.onAuthStateChanged(user => {
 document.getElementById('login').addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-        .then((result) => {
-            console.log('User signed in');
-        })
         .catch((error) => {
             console.error(error);
         });
@@ -61,8 +68,7 @@ document.getElementById('uploadButton').addEventListener('click', () => {
 
 function uploadImage(file) {
     const storageRef = sRef(storage, `images/${file.name}`);
-    uploadBytes(storageRef, file).then((snapshot) => {
-        console.log('Uploaded a file!');
+    uploadBytes(storageRef, file).then(() => {
         displayPhotos(); // Refresh the images displayed
     });
 }
@@ -71,49 +77,63 @@ function uploadImage(file) {
 function displayPhotos() {
     const photosContainer = document.getElementById('photos-container');
     photosContainer.innerHTML = ''; // Clear existing images
+    photoUrls = []; // Reset the photoUrls array
 
     const listRef = sRef(storage, 'images/');
     listAll(listRef)
         .then((res) => {
-            res.items.forEach((itemRef) => {
+            res.items.forEach((itemRef, index) => {
                 getDownloadURL(itemRef).then((url) => {
+                    photoUrls.push(url); // Store the URL for navigation
                     const img = document.createElement('img');
                     img.src = url;
-                    img.onclick = function() {
-                        document.getElementById('enlarged-photo').src = url;
-                        document.getElementById('photo-modal').style.display = 'block';
-                        currentPhotoId = itemRef.name; // Set the current photo ID
-                        loadComments(itemRef.name); // Load comments for the photo
-                    };
+                    img.onclick = () => openModal(url, index);
                     photosContainer.appendChild(img);
                 });
             });
         });
 }
 
+function openModal(url, index) {
+    currentPhotoId = index; // Set the current photo index for navigation
+    const modal = document.getElementById('photo-modal');
+    const enlargedPhoto = document.getElementById('enlarged-photo');
+    enlargedPhoto.src = url;
+    modal.style.display = 'block';
+    loadComments(index); // Load comments for the photo
+}
+
 // Modal handling
 var modal = document.getElementById('photo-modal');
 var span = document.getElementsByClassName('close')[0];
 
-span.onclick = function() {
-    modal.style.display = 'none';
-};
-
-window.onclick = function(event) {
+span.onclick = () => modal.style.display = 'none';
+window.onclick = (event) => {
     if (event.target === modal) {
         modal.style.display = 'none';
     }
 };
+
+// Next and Previous Photo Navigation
+document.getElementById('prev-photo').addEventListener('click', () => navigatePhoto(-1));
+document.getElementById('next-photo').addEventListener('click', () => navigatePhoto(1));
+
+function navigatePhoto(direction) {
+    currentPhotoId = (currentPhotoId + direction + photoUrls.length) % photoUrls.length;
+    const enlargedPhoto = document.getElementById('enlarged-photo');
+    enlargedPhoto.src = photoUrls[currentPhotoId];
+    loadComments(currentPhotoId); // Load comments for the new photo
+}
 
 // Function to post a comment
 async function postComment(photoId, commentText) {
     const commentData = {
         text: commentText,
         timestamp: serverTimestamp(),
-        userName: auth.currentUser.displayName, // Get the user's display name
-        userId: auth.currentUser.uid
+        userName: auth.currentUser ? auth.currentUser.displayName : "Anonymous",
+        userId: auth.currentUser ? auth.currentUser.uid : null
     };
-    await addDoc(collection(db, "photos", photoId, "comments"), commentData);
+    await addDoc(collection(db, "photos", photoId.toString(), "comments"), commentData);
 }
 
 // Function to load comments for a photo
@@ -121,13 +141,13 @@ async function loadComments(photoId) {
     const commentsContainer = document.getElementById('photo-comments');
     commentsContainer.innerHTML = ''; // Clear existing comments
 
-    const q = query(collection(db, "photos", photoId, "comments"), orderBy("timestamp", "desc"));
+    const q = query(collection(db, "photos", photoId.toString(), "comments"), orderBy("timestamp", "desc"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
         const commentData = doc.data();
         const commentElement = document.createElement("div");
         commentElement.className = 'comment-box';
-        commentElement.textContent = `${commentData.userName}: ${commentData.text}`; // Display the commenter's name and text
+        commentElement.textContent = `${commentData.userName}: ${commentData.text}`;
         commentsContainer.appendChild(commentElement);
     });
 }
@@ -136,10 +156,10 @@ async function loadComments(photoId) {
 document.getElementById('post-comment').addEventListener('click', async () => {
     const commentInput = document.getElementById('comment-input');
     const commentText = commentInput.value;
-    if (currentPhotoId && commentText) {
+    if (currentPhotoId !== null && commentText) {
         await postComment(currentPhotoId, commentText);
         commentInput.value = ''; // Clear the input
-        await loadComments(currentPhotoId); // Reload comments
+        loadComments(currentPhotoId); // Reload comments
     } else {
         console.log('No photo selected or comment text is empty');
     }
