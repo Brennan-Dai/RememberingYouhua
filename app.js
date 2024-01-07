@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getStorage, ref as sRef, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } 
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, doc } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -16,7 +16,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+getAnalytics(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 const db = getFirestore(app);
@@ -25,34 +25,16 @@ let currentPhotoIndex = -1;
 let photoURLs = [];
 let photoIds = [];
 
-const loginContainer = document.getElementById('login-container');
-const uploadContainer = document.getElementById('upload-container');
-const photosContainer = document.getElementById('photos-container');
-const commentInput = document.getElementById('comment-input');
-const postCommentBtn = document.getElementById('post-comment');
-const modal = document.getElementById('photo-modal');
-const enlargedPhoto = document.getElementById('enlarged-photo');
-const photoComments = document.getElementById('photo-comments');
-
 auth.onAuthStateChanged(user => {
-    if (user) {
-        loginContainer.style.display = 'none';
-        uploadContainer.style.display = 'block';
-        commentInput.style.display = 'block';
-        postCommentBtn.style.display = 'block';
-    } else {
-        loginContainer.style.display = 'block';
-        uploadContainer.style.display = 'none';
-        commentInput.style.display = 'none';
-        postCommentBtn.style.display = 'none';
-    }
+    document.getElementById('login-container').style.display = user ? 'none' : 'block';
+    document.getElementById('upload-container').style.display = user ? 'block' : 'none';
+    document.getElementById('comment-input').style.display = user ? 'block' : 'none';
+    document.getElementById('post-comment').style.display = user ? 'block' : 'none';
 });
 
 document.getElementById('login').addEventListener('click', () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider).catch((error) => {
-        console.error(error);
-    });
+    signInWithPopup(auth, provider).catch(console.error);
 });
 
 document.getElementById('uploadButton').addEventListener('click', () => {
@@ -71,6 +53,7 @@ function uploadImage(file) {
 }
 
 function displayPhotos() {
+    const photosContainer = document.getElementById('photos-container');
     photosContainer.innerHTML = '';
     photoURLs = [];
     photoIds = [];
@@ -92,8 +75,8 @@ function displayPhotos() {
 
 function openModal(url, index) {
     currentPhotoIndex = index;
-    enlargedPhoto.src = url;
-    modal.style.display = 'block';
+    document.getElementById('enlarged-photo').src = url;
+    document.getElementById('photo-modal').style.display = 'block';
     loadComments(photoIds[currentPhotoIndex]);
 }
 
@@ -102,11 +85,15 @@ document.getElementById('next-photo').addEventListener('click', () => navigatePh
 
 function navigatePhoto(step) {
     currentPhotoIndex = (currentPhotoIndex + step + photoURLs.length) % photoURLs.length;
-    enlargedPhoto.src = photoURLs[currentPhotoIndex];
+    document.getElementById('enlarged-photo').src = photoURLs[currentPhotoIndex];
     loadComments(photoIds[currentPhotoIndex]);
 }
 
 async function postComment(photoId, commentText) {
+    if (!auth.currentUser) {
+        console.log('You must be logged in to post comments.');
+        return;
+    }
     const commentData = {
         text: commentText,
         timestamp: serverTimestamp(),
@@ -114,28 +101,29 @@ async function postComment(photoId, commentText) {
         userId: auth.currentUser.uid
     };
     await addDoc(collection(db, "photos", photoId, "comments"), commentData);
+    loadComments(photoId);
 }
 
 async function loadComments(photoId) {
-    photoComments.innerHTML = '';
-
+    const commentsContainer = document.getElementById('photo-comments');
+    commentsContainer.innerHTML = '';
     const q = query(collection(db, "photos", photoId, "comments"), orderBy("timestamp", "desc"));
+
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
         const commentData = doc.data();
         const commentBox = document.createElement("div");
         commentBox.className = 'comment-box';
         commentBox.textContent = `${commentData.userName}: ${commentData.text}`;
-        photoComments.appendChild(commentBox);
+        commentsContainer.appendChild(commentBox);
     });
 }
 
 document.getElementById('post-comment').addEventListener('click', async () => {
-    const commentText = commentInput.value;
-    if (commentText) {
+    const commentText = document.getElementById('comment-input').value.trim();
+    if (commentText && currentPhotoIndex !== -1) {
         await postComment(photoIds[currentPhotoIndex], commentText);
-        commentInput.value = '';
-        loadComments(photoIds[currentPhotoIndex]);
+        document.getElementById('comment-input').value = '';
     }
 });
 
