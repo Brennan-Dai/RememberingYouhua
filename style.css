@@ -98,48 +98,45 @@ button:hover {
 }
 
 #photo-comments {
-    margin: 0 auto;
     max-width: 600px;
-    background: rgba(0, 0, 0, 0.7);
+    margin: 20px auto;
+    background: #fff;
     border-radius: 8px;
     padding: 15px;
     box-sizing: border-box;
-    margin-top: 20px;
     overflow-y: auto;
+    max-height: 200px; /* Limit the height of the comments section */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Add shadow for better visibility */
 }
 
 .comment-box {
-    background: #f8f8f8;
-    border: 1px solid #ccc;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
     margin-bottom: 10px;
-    padding: 10px;
+    padding: 8px;
     border-radius: 4px;
     text-align: left;
-}
-
-#comment-input, #post-comment {
-    width: calc(100% - 30px);
-    margin: 5px auto;
-    display: block;
+    font-size: 0.9rem;
 }
 
 #comment-input {
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: calc(100% - 30px);
     padding: 10px;
-    margin-bottom: 10px;
+    margin: 10px auto;
+    display: block;
+    border-radius: 4px;
+    border: 1px solid #ddd;
 }
 
 #post-comment {
-    background-color: #28a745;
+    background-color: #4285F4;
     color: white;
     border: none;
     padding: 10px 20px;
+    margin: 10px auto;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-}
-
-#post-comment:hover {
-    background-color: #218838;
+    display: block;
+    width: calc(100% - 30px);
 }

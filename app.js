@@ -91,39 +91,50 @@ function navigatePhoto(step) {
 
 async function postComment(photoId, commentText) {
     if (!auth.currentUser) {
-        console.log('You must be logged in to post comments.');
+        alert('You must be logged in to post comments.');
         return;
     }
+
     const commentData = {
         text: commentText,
         timestamp: serverTimestamp(),
         userName: auth.currentUser.displayName,
         userId: auth.currentUser.uid
     };
-    await addDoc(collection(db, "photos", photoId, "comments"), commentData);
-    loadComments(photoId);
+    
+    try {
+        await addDoc(collection(db, "photos", photoId, "comments"), commentData);
+        loadComments(photoId); // Call loadComments to update the UI
+    } catch (error) {
+        console.error("Error posting comment: ", error);
+    }
 }
 
 async function loadComments(photoId) {
     const commentsContainer = document.getElementById('photo-comments');
-    commentsContainer.innerHTML = '';
+    commentsContainer.innerHTML = ''; // Clear the comments container
+
     const q = query(collection(db, "photos", photoId, "comments"), orderBy("timestamp", "desc"));
 
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        const commentData = doc.data();
-        const commentBox = document.createElement("div");
-        commentBox.className = 'comment-box';
-        commentBox.textContent = `${commentData.userName}: ${commentData.text}`;
-        commentsContainer.appendChild(commentBox);
-    });
+    try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            const commentData = doc.data();
+            const commentBox = document.createElement("div");
+            commentBox.className = 'comment-box';
+            commentBox.textContent = `${commentData.userName}: ${commentData.text}`;
+            commentsContainer.appendChild(commentBox);
+        });
+    } catch (error) {
+        console.error("Error loading comments: ", error);
+    }
 }
 
 document.getElementById('post-comment').addEventListener('click', async () => {
     const commentText = document.getElementById('comment-input').value.trim();
     if (commentText && currentPhotoIndex !== -1) {
         await postComment(photoIds[currentPhotoIndex], commentText);
-        document.getElementById('comment-input').value = '';
+        document.getElementById('comment-input').value = ''; // Clear the input field
     }
 });
 
