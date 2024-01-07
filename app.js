@@ -20,6 +20,7 @@ getAnalytics(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 const db = getFirestore(app);
+const modal = document.getElementById('photo-modal'); // Define the modal here
 
 let currentPhotoIndex = -1;
 let photoURLs = [];
@@ -145,7 +146,7 @@ document.getElementsByClassName('close')[0].onclick = function() {
 
 window.onclick = function(event) {
     if (event.target === modal) {
-        document.getElementById('photo-modal').style.display = 'none';
+        modal.style.display = 'none';
         document.getElementById('comment-bar').style.display = 'none';
     }
 };
