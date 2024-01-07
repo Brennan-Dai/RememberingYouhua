@@ -1,47 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>Photo Sharing App for Grandma's Funeral</title>
+    <title>Memories of Grandma Youhua Guo</title>
     <link rel="stylesheet" href="style.css">
-  </head>
-
-  <body>
+</head>
+<body>
     <nav>
-      <a href="/funeral-details.html">Funeral Details</a>
-      <a href="/photos.html">Photos</a>
+        <a href="/">Funeral Details</a>
+        <a href="/photos/">Photos</a>
     </nav>
 
     <header>
-      <h1>Memories of Grandma</h1>
+        <h1>Memories of Grandma</h1>
     </header>
 
-    <div id="photos-container"></div>
+    <main>
+        <section>
+            <h2>Youhua Guo</h2>
+            <p>OCTOBER 8, 1927 – JANUARY 1, 2024</p>
+            <p>Our beloved mother and grandmother, Youhua Guo, passed away peacefully at age 96 in San Mateo, California on Monday, January 1, 2024.</p>
+        </section>
 
-    <div id="upload-container" style="display:none;">
-      <input type="file" id="imageInput" accept="image/*">
-      <button id="uploadButton">Upload Photo</button>
-    </div>
+        <section>
+            <h3>Memorial Service Details</h3>
+            <p>Please join us on Saturday, January 13, 2024 at 10am for a memorial service to celebrate Youhua’s life. The service will be held at Woodlawn Memorial Park in Colma, CA. The burial service will follow at 11am. Lunch will be served at 12:30pm at the Noodle Shop in San Mateo.</p>
+        </section>
+    </main>
 
-    <div id="login-container">
-      <button id="login">Login with Google</button>
-    </div>
-
-    <div id="photo-modal" class="modal">
-      <span class="close">&times;</span>
-      <button id="prev-photo" class="modal-nav">‹ Prev</button>
-      <button id="next-photo" class="modal-nav">Next ›</button>
-      <img class="modal-content" id="enlarged-photo">
-      <div id="photo-comments" class="photo-comments"></div>
-    </div>
-
-    <div id="comment-bar">
-      <input type="text" id="comment-input" placeholder="Write a comment...">
-      <button id="post-comment">Post Comment</button>
-    </div>
-
-    <script type="module" src="app.js"></script>
-  </body>
-
+    <footer>
+        <p>© 2024 Family of Youhua Guo. All Rights Reserved.</p>
+    </footer>
+</body>
 </html>
