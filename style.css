@@ -47,7 +47,6 @@ button:hover {
     cursor: pointer;
 }
 
-/* Modal Styles */
 .modal {
     display: none; 
     position: fixed; 
@@ -98,30 +97,49 @@ button:hover {
     cursor: pointer;
 }
 
-.photo-comments, #comment-input, #post-comment {
-    display: none; /* Initially hidden */
-    color: #fff;
-    text-align: left;
-    padding: 10px;
-    margin-top: 10px;
-}
-
-.photo-comments {
+#photo-comments {
+    margin: 0 auto;
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    padding: 15px;
+    box-sizing: border-box;
+    margin-top: 20px;
     overflow-y: auto;
-    max-height: 150px;
-    border: 1px solid #ddd;
-    background: rgba(255, 255, 255, 0.8);
 }
 
 .comment-box {
-    background: #eee;
-    border: 1px solid #ddd;
-    padding: 5px;
-    margin-bottom: 5px;
-    border-radius: 5px;
+    background: #f8f8f8;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: left;
 }
 
 #comment-input, #post-comment {
-    width: 75%;
+    width: calc(100% - 30px);
+    margin: 5px auto;
+    display: block;
+}
+
+#comment-input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
     padding: 10px;
+    margin-bottom: 10px;
+}
+
+#post-comment {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#post-comment:hover {
+    background-color: #218838;
 }
