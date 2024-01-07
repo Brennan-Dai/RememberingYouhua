@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getStorage, ref as sRef, uploadBytes, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, doc } 
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } 
     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -33,7 +33,6 @@ auth.onAuthStateChanged(user => {
     if (user) {
         loginContainer.style.display = 'none';
         uploadContainer.style.display = 'block';
-        // The comment bar should not be shown until a photo is clicked
     } else {
         loginContainer.style.display = 'block';
         uploadContainer.style.display = 'none';
@@ -83,33 +82,12 @@ function displayPhotos() {
 }
 
 function openModal(url, index) {
-    const modal = document.getElementById('photo-modal');
-    const enlargedPhoto = document.getElementById('enlarged-photo');
-    const commentBar = document.getElementById('comment-bar');
-
     currentPhotoIndex = index;
-    enlargedPhoto.src = url;
-    modal.style.display = 'block';
-    commentBar.style.display = 'flex'; // Show the comment bar in flex to align items
+    document.getElementById('enlarged-photo').src = url;
+    document.getElementById('photo-modal').style.display = 'block';
+    document.getElementById('comment-bar').style.display = 'flex'; // Show comment bar
     loadComments(photoIds[currentPhotoIndex]);
 }
-
-// Modal handling - close button
-document.getElementsByClassName('close')[0].onclick = function() {
-    const modal = document.getElementById('photo-modal');
-    const commentBar = document.getElementById('comment-bar');
-    modal.style.display = 'none';
-    commentBar.style.display = 'none';
-};
-
-window.onclick = function(event) {
-    const modal = document.getElementById('photo-modal');
-    const commentBar = document.getElementById('comment-bar');
-    if (event.target === modal) {
-        modal.style.display = 'none';
-        commentBar.style.display = 'none';
-    }
-};
 
 document.getElementById('prev-photo').addEventListener('click', () => navigatePhoto(-1));
 document.getElementById('next-photo').addEventListener('click', () => navigatePhoto(1));
@@ -133,75 +111,43 @@ async function postComment(photoId, commentText) {
         userId: auth.currentUser.uid
     };
     
-    try {
-        await addDoc(collection(db, "photos", photoId, "comments"), commentData);
-        loadComments(photoId); // Call loadComments to update the UI
-    } catch (error) {
-        console.error("Error posting comment: ", error);
-    }
+    await addDoc(collection(db, "photos", photoId, "comments"), commentData);
+    loadComments(photoId); // Reload comments
 }
 
 async function loadComments(photoId) {
     const commentsContainer = document.getElementById('photo-comments');
-    commentsContainer.innerHTML = ''; // Clear the comments container
+    commentsContainer.innerHTML = '';
 
     const q = query(collection(db, "photos", photoId, "comments"), orderBy("timestamp", "desc"));
-
-    try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-            const commentData = doc.data();
-            const commentBox = document.createElement("div");
-            commentBox.className = 'comment-box';
-            commentBox.textContent = `${commentData.userName}: ${commentData.text}`;
-            commentsContainer.appendChild(commentBox);
-        });
-    } catch (error) {
-        console.error("Error loading comments: ", error);
-    }
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        const commentData = doc.data();
+        const commentBox = document.createElement("div");
+        commentBox.className = 'comment-box';
+        commentBox.textContent = `${commentData.userName}: ${commentData.text}`;
+        commentsContainer.appendChild(commentBox);
+    });
 }
 
 document.getElementById('post-comment').addEventListener('click', async () => {
     const commentText = document.getElementById('comment-input').value.trim();
-    if (commentText && currentPhotoIndex !== -1) {
+    if (commentText) {
         await postComment(photoIds[currentPhotoIndex], commentText);
-        document.getElementById('comment-input').value = ''; // Clear the input field
+        document.getElementById('comment-input').value = '';
     }
 });
 
-displayPhotos();
-
 document.getElementsByClassName('close')[0].onclick = function() {
-    modal.style.display = 'none';
+    document.getElementById('photo-modal').style.display = 'none';
+    document.getElementById('comment-bar').style.display = 'none';
 };
 
 window.onclick = function(event) {
     if (event.target === modal) {
-        modal.style.display = 'none';
+        document.getElementById('photo-modal').style.display = 'none';
+        document.getElementById('comment-bar').style.display = 'none';
     }
 };
 
-// Add a navigation bar at the top
-document.body.insertAdjacentHTML(
-    'afterbegin',
-    `<nav>
-        <a href="/funeral-details.html">Funeral Details</a>
-        <a href="/photos.html">Photos</a>
-    </nav>`
-);
-
-// Add a fixed comment bar at the bottom
-document.body.insertAdjacentHTML(
-    'beforeend',
-    `<div id="comment-bar">
-        <input type="text" id="comment-input" placeholder="Write a comment...">
-        <button id="post-comment">Post Comment</button>
-    </div>`
-);
-
-// Adjustments for mobile view and fixed elements
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.innerWidth < 600) {
-        // Adjustments for small screens
-    }
-});
+displayPhotos();
