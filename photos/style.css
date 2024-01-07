@@ -172,7 +172,29 @@ h1 {
     border-radius: 4px;
 }
 
-#button {
+#post-comment {
+    white-space: nowrap;
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#uploadButton {
+    white-space: nowrap;
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+#login {
     white-space: nowrap;
     background-color: #4285F4;
     color: white;
