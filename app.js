@@ -139,3 +139,38 @@ document.getElementById('post-comment').addEventListener('click', async () => {
 });
 
 displayPhotos();
+
+document.getElementsByClassName('close')[0].onclick = function() {
+    modal.style.display = 'none';
+};
+
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
+
+// Add a navigation bar at the top
+document.body.insertAdjacentHTML(
+    'afterbegin',
+    `<nav>
+        <a href="/funeral-details.html">Funeral Details</a>
+        <a href="/photos.html">Photos</a>
+    </nav>`
+);
+
+// Add a fixed comment bar at the bottom
+document.body.insertAdjacentHTML(
+    'beforeend',
+    `<div id="comment-bar">
+        <input type="text" id="comment-input" placeholder="Write a comment...">
+        <button id="post-comment">Post Comment</button>
+    </div>`
+);
+
+// Adjustments for mobile view and fixed elements
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth < 600) {
+        // Adjustments for small screens
+    }
+});
