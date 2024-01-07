@@ -26,10 +26,19 @@ let photoURLs = [];
 let photoIds = [];
 
 auth.onAuthStateChanged(user => {
-    document.getElementById('login-container').style.display = user ? 'none' : 'block';
-    document.getElementById('upload-container').style.display = user ? 'block' : 'none';
-    document.getElementById('comment-input').style.display = user ? 'block' : 'none';
-    document.getElementById('post-comment').style.display = user ? 'block' : 'none';
+    const loginContainer = document.getElementById('login-container');
+    const uploadContainer = document.getElementById('upload-container');
+    const commentBar = document.getElementById('comment-bar');
+
+    if (user) {
+        loginContainer.style.display = 'none';
+        uploadContainer.style.display = 'block';
+        // The comment bar should not be shown until a photo is clicked
+    } else {
+        loginContainer.style.display = 'block';
+        uploadContainer.style.display = 'none';
+        commentBar.style.display = 'none';
+    }
 });
 
 document.getElementById('login').addEventListener('click', () => {
@@ -74,11 +83,33 @@ function displayPhotos() {
 }
 
 function openModal(url, index) {
+    const modal = document.getElementById('photo-modal');
+    const enlargedPhoto = document.getElementById('enlarged-photo');
+    const commentBar = document.getElementById('comment-bar');
+
     currentPhotoIndex = index;
-    document.getElementById('enlarged-photo').src = url;
-    document.getElementById('photo-modal').style.display = 'block';
+    enlargedPhoto.src = url;
+    modal.style.display = 'block';
+    commentBar.style.display = 'flex'; // Show the comment bar in flex to align items
     loadComments(photoIds[currentPhotoIndex]);
 }
+
+// Modal handling - close button
+document.getElementsByClassName('close')[0].onclick = function() {
+    const modal = document.getElementById('photo-modal');
+    const commentBar = document.getElementById('comment-bar');
+    modal.style.display = 'none';
+    commentBar.style.display = 'none';
+};
+
+window.onclick = function(event) {
+    const modal = document.getElementById('photo-modal');
+    const commentBar = document.getElementById('comment-bar');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+        commentBar.style.display = 'none';
+    }
+};
 
 document.getElementById('prev-photo').addEventListener('click', () => navigatePhoto(-1));
 document.getElementById('next-photo').addEventListener('click', () => navigatePhoto(1));
